@@ -1,0 +1,3 @@
+[submodule "NotebookNumbers/app/src/main/assets/notebook-numbers"]
+	path = NotebookNumbers/app/src/main/assets/notebook-numbers
+	url = https://silleknarf@bitbucket.org/silleknarf/notebook-numbers.git
