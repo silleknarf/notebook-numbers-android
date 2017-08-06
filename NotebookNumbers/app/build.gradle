@@ -7,8 +7,8 @@ android {
         applicationId "com.silleknarf.notebooknumbers"
         minSdkVersion 19
         targetSdkVersion 23
-        versionCode 5
-        versionName "1.5"
+        versionCode 12
+        versionName "1.12"
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
     }
     buildTypes {
