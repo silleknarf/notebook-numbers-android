@@ -1,6 +1,8 @@
 <resources>
     <string name="app_name">Notebook Numbers</string>
-
+    <string name="app_id">990897033093</string>
     <string name="dummy_button">Dummy Button</string>
     <string name="dummy_content">DUMMY\nCONTENT</string>
+    <string name="leaderboard_high_scores">CgkIhZ_DsOscEAIQAQ</string>
+    <string name="signin_other_error">There was an issue with sign in. Please try again later.</string>
 </resources>
