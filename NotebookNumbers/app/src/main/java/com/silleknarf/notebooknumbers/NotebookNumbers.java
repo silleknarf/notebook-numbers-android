@@ -6,21 +6,23 @@ import android.os.Build;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
+import android.view.Gravity;
 import android.view.Window;
 import android.webkit.WebSettings;
 import android.webkit.WebView;
+import android.widget.Toast;
 
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.games.Games;
+import com.google.android.gms.games.GamesActivityResultCodes;
 import com.google.android.gms.games.Player;
 import com.google.example.games.basegameutils.BaseGameUtils;
 
-import static android.app.Activity.RESULT_OK;
+import java.text.NumberFormat;
 
 /**
- * An example full-screen activity that shows and hides the system UI (i.e.
- * status bar and navigation/system bar) with user interaction.
+ * The main activity which hosts the Notebook Numbers webview and interacts with the leaderboard
  */
 public class NotebookNumbers extends AppCompatActivity
         implements GoogleApiClient.ConnectionCallbacks,
@@ -36,13 +38,11 @@ public class NotebookNumbers extends AppCompatActivity
     private boolean mResolvingConnectionFailure = false;
 
     // request codes we use when invoking an external activity
-    private static final int RC_RESOLVE = 5000;
-    private static final int RC_UNUSED = 5001;
     private static final int RC_SIGN_IN = 9001;
     private static final int RC_LEADERBOARD = 8001;
 
 
-    final String TAG = "NotebookNumbers";
+    final String TAG = "NNMainActivity";
 
     // Has the user clicked the sign-in button?
     private boolean mSignInClicked = false;
@@ -90,10 +90,10 @@ public class NotebookNumbers extends AppCompatActivity
 
     private void executeJavaScriptEvent(String event)
     {
+        Log.d(TAG, "Executing JS event: " + event);
         webView.loadUrl("javascript:eventManager.vent.trigger('" + event + "')");
     }
 
-    // TODO: Call this method
     @android.webkit.JavascriptInterface
     public boolean isSignedIn() {
         return (mGoogleApiClient != null && mGoogleApiClient.isConnected());
@@ -117,7 +117,15 @@ public class NotebookNumbers extends AppCompatActivity
 
     @android.webkit.JavascriptInterface
     public void updateLeaderboards(int finalScore) {
-        Log.i(TAG, "Updating leaderboard with score: " + Integer.toString(finalScore));
+        NumberFormat nf = NumberFormat.getInstance();
+        String formattedScore = nf.format(finalScore);
+        String scoreText = "Submitting score of: " + formattedScore + " to the leaderboards";
+
+        Log.d(TAG, scoreText);
+
+        // Notify the user
+        Toast.makeText(this.getApplicationContext(), scoreText, Toast.LENGTH_SHORT).show();
+
         Games.Leaderboards.submitScore(
             mGoogleApiClient,
             getString(R.string.leaderboard_high_scores),
@@ -126,6 +134,7 @@ public class NotebookNumbers extends AppCompatActivity
 
     @android.webkit.JavascriptInterface
     public void openLeaderboards() {
+        Log.d(TAG, "Opening leaderboards");
         startActivityForResult(Games.Leaderboards.getLeaderboardIntent(
                 mGoogleApiClient,
                 getString(R.string.leaderboard_high_scores)),
@@ -144,16 +153,15 @@ public class NotebookNumbers extends AppCompatActivity
                 BaseGameUtils.showActivityResultError(this, requestCode, resultCode, R.string.signin_other_error);
             }
         }
+        else if (requestCode == RC_LEADERBOARD &&
+                resultCode == GamesActivityResultCodes.RESULT_RECONNECT_REQUIRED) {
+                logOut();
+        }
     }
 
     @Override
     public void onConnected(Bundle bundle) {
         Log.d(TAG, "onConnected(): connected to Google APIs");
-        // Show sign-out button on main menu
-        // TODO: Show sign-out button on main menu
-
-        // Show "you are signed in" message on win screen, with no sign in button.
-        // TODO: Set you are signed in message
         executeJavaScriptEvent(LOGGED_IN_EVENT);
 
         // Set the greeting appropriately on main menu
@@ -193,31 +201,24 @@ public class NotebookNumbers extends AppCompatActivity
         }
 
         // Sign-in failed, so show sign-in button on main menu
-        // TODO: Show signed out notification
-        // TODO: Show sign in button
-        // TODO: Hide sign out button
         executeJavaScriptEvent(LOGGED_OUT_EVENT);
     }
 
-    // TODO: Call this method
     @android.webkit.JavascriptInterface
-    public void onSignInButtonClicked() {
-        // start the sign-in flow
+    public void logIn() {
+        Log.d(TAG, "Starting the sign in flow");
         mSignInClicked = true;
         mGoogleApiClient.connect();
+        executeJavaScriptEvent(LOGGED_IN_EVENT);
     }
 
-    // TODO: Call this method
     @android.webkit.JavascriptInterface
-    public void onSignOutButtonClicked() {
+    public void logOut() {
+        Log.d(TAG, "Starting the sign out flow");
         mSignInClicked = false;
-        Games.signOut(mGoogleApiClient);
         if (mGoogleApiClient.isConnected()) {
             mGoogleApiClient.disconnect();
         }
-
-        // TODO: Show signed out notification
-        // TODO: Show sign in button
-        // TODO: Hide sign out button
+        executeJavaScriptEvent(LOGGED_OUT_EVENT);
     }
 }
