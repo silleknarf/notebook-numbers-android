@@ -1,7 +1,7 @@
 Notebook Numbers Android
 ========================
 
-The Andrioid client for notebook numbers. 
+The Android client for notebook numbers. 
 
 Available to buy on [Android](https://play.google.com/store/apps/details?id=com.silleknarf.notebooknumbers&hl=en)
 
